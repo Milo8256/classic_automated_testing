@@ -11,14 +11,23 @@ import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.config.AnalysisScopeReader;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class Until {
+public class Util {
+    /**
+    * @Description  此方法是一个工厂方法,按照参数的粒度,分别返回相应的类级
+     *              -m 返回方法级选择,
+     *              -c 返回类级选择
+     *              其他 报错
+     * @Param: projectPath 项目的绝对路径
+    * @Param: changeInfoPath  changeInfo.txt的绝对路径
+    * @Param: level 粒度选择,合法的为-c或者-m
+    * @return Selection 返回相应的参数
+    **/
     public static Selection createSelection(String projectPath, String changeInfoPath, String level){
         switch (level){
             case "-m":
@@ -33,8 +42,13 @@ public class Until {
         }
     }
 
+    /**
+    * @Description 获取scope对象,调用readJavaScope方法,读取scope.txt,exclusion.txt
+     * @Param: path  需要添加进scope的class文件的绝对路径
+    * @return com.ibm.wala.ipa.callgraph.AnalysisScope
+    **/
     public static AnalysisScope getScope(String path){
-        ClassLoader classloader = Until.class.getClassLoader();
+        ClassLoader classloader = Util.class.getClassLoader();
         try {
             AnalysisScope scope = AnalysisScopeReader.readJavaScope("scope.txt", new File("exclusion.txt"), classloader);
             addScope(path,scope);
@@ -45,6 +59,13 @@ public class Until {
         System.out.println("something wrong while creating scope .");
         return null;
     }
+    
+    /**
+    * @Description 添加新的class文件进入已经创建好的scope中
+     * @Param: path class文件的绝对路径
+    * @Param: scope 需要添加class的scope分析域
+    * @return void
+    **/
 
     public static void addScope(String path,AnalysisScope scope){
         try {
@@ -61,6 +82,12 @@ public class Until {
         System.out.println("something wrong while creating scope .");
         return;
     }
+    
+    /**
+    * @Description 获取scope的callGraph
+     * @Param: scope
+    * @return com.ibm.wala.ipa.callgraph.CallGraph
+    **/
     public static CallGraph getCallGraph(AnalysisScope scope) {
 //        System.out.println("try to get call graph");
         try{
@@ -81,6 +108,14 @@ public class Until {
         System.out.println("something wrong while creating call graph . ");
         return null;
     }
+    
+    /**
+    * @Description 加载changeInfo文件到Map<String,Set<String>>中
+     *              key : class
+     *              value : signature
+     * @Param: changeInfoPath changeInfo文件的绝对路径
+    * @return java.util.Map<java.lang.String,java.util.Set<java.lang.String>>
+    **/
 
     public static Map<String, Set<String>> loadChangeInfo(String changeInfoPath){
         Map<String, Set<String>> resMap = new HashMap<String, Set<String>>();
@@ -104,6 +139,12 @@ public class Until {
         return resMap;
     }
 
+    /**
+    * @Description 将res的内容存入targetFile文件中
+     * @Param: res 保存相应的testcase
+    * @Param: targetFile 将内容保存到相应的文件中
+    * @return void
+    **/
     public static void store(Set<String> res,String targetFile){
         System.out.println("save result into "+ targetFile+" ! ");
         try {
@@ -118,6 +159,11 @@ public class Until {
         System.out.println("save into file done ! ");
     }
 
+    /**
+     * 同store(Set<String> res,String targetFile)
+     * @param res
+     * @param targetFile
+     */
     public static void store(String res,String targetFile){
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(targetFile));
