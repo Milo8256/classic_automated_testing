@@ -249,6 +249,34 @@ public void getSelection() {
 
 工具类,主要为wala框架的使用方法,以及文件存储方法等
 
+其中比较重要的是createSelection方法,这是一个工厂方法,生成相应粒度的class文件.
+
+```java
+/**
+* @Description  此方法是一个工厂方法,按照参数的粒度,分别返回相应的类级
+ *              -m 返回方法级选择,
+ *              -c 返回类级选择
+ *              其他 报错
+ * @Param: projectPath 项目的绝对路径
+* @Param: changeInfoPath  changeInfo.txt的绝对路径
+* @Param: level 粒度选择,合法的为-c或者-m
+* @return Selection 返回相应的参数
+**/
+public static Selection createSelection(String projectPath, String changeInfoPath, String level){
+    switch (level){
+        case "-m":
+            System.out.println("create selectionMethod class");
+            return new SelectionMethod(projectPath,changeInfoPath);
+        case "-c":
+            System.out.println("create selectionClass class");
+            return new SelectionClass(projectPath,changeInfoPath);
+        default:
+            System.out.println("ERROR : something wrong in get Selection");
+            return null;
+    }
+}
+```
+
 ### 问题
 
 目前对于方法级别的测试用例选择,存在精度不高的情况,可能的原因是使用了cha生成调用图,从而在某些情况(如改变了接口,改变了父类等多态,泛型问题),测试用例方法的选取会缺少几个
